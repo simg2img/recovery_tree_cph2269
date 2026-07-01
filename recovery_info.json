@@ -1,0 +1,21 @@
+{
+  "partition_size": 102760448,
+  "header_version": 2,
+  "page_size": 2048,
+  "kernel_size": 14472520,
+  "kernel_addr": 1074266112,
+  "ramdisk_size": 29695903,
+  "ramdisk_addr": 1370488832,
+  "second_size": 0,
+  "second_addr": 0,
+  "tags_addr": 1200095232,
+  "os_version": "0x16000158",
+  "os_patch_level": "0x00000000",
+  "name": "bootopt=64S3,32N2,64N2 buildvariant=user",
+  "cmdline": "",
+  "recovery_dtbo_size": 0,
+  "recovery_dtbo_offset": "0x0000000000000000",
+  "header_size": 0,
+  "dtb_size": 0,
+  "dtb_addr": "0x0000000000000000"
+}

@@ -1,0 +1,45 @@
+name: Build recovery.img
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cpio python3
+
+      - name: Pack ramdisk
+        run: |
+          find . -not -path './.git/*' -not -path './.github/*' -not -name '.git' -not -name 'kernel' -not -name 'mkbootimg.py' -not -name '*recovery_info*' | cpio -H newc -o > ramdisk.cpio
+          gzip -c ramdisk.cpio > ramdisk.cpio.gz
+
+      - name: Build recovery.img
+        run: |
+          INFO=recovery_info.json
+          python3 mkbootimg.py \
+            --kernel kernel \
+            --ramdisk ramdisk.cpio.gz \
+            --kernel_addr $(python3 -c "import json; print(json.load(open('$INFO'))['kernel_addr'])") \
+            --ramdisk_addr $(python3 -c "import json; print(json.load(open('$INFO'))['ramdisk_addr'])") \
+            --tags_addr $(python3 -c "import json; print(json.load(open('$INFO'))['tags_addr'])") \
+            --pagesize $(python3 -c "import json; print(json.load(open('$INFO'))['page_size'])") \
+            --header_version $(python3 -c "import json; print(json.load(open('$INFO'))['header_version'])") \
+            --os_version $(python3 -c "import json; print(json.load(open('$INFO'))['os_version'])") \
+            --os_patch_level $(python3 -c "import json; print(json.load(open('$INFO'))['os_patch_level'])") \
+            --name "$(python3 -c "import json; print(json.load(open('$INFO'))['name'])")" \
+            --partition-size $(python3 -c "import json; print(json.load(open('$INFO'))['partition_size'])") \
+            --avb-footer \
+            -o recovery.img
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: recovery.img
+          path: recovery.img
